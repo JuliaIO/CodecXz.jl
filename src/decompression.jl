@@ -22,6 +22,11 @@ end
 
 const XzDecompressionStream{S} = TranscodingStream{XzDecompression,S}
 
+"""
+    XzDecompressionStream(stream::IO)
+
+Create an xz decompression stream.
+"""
 function XzDecompressionStream(stream::IO)
     return TranscodingStream(XzDecompression(), stream)
 end

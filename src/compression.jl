@@ -7,7 +7,14 @@ struct XzCompression <: TranscodingStreams.Codec
     check::Cint
 end
 
-function XzCompression(;level::Integer=6)
+const DEFAULT_COMPRESSION_LEVEL = 6
+
+"""
+    XzCompression(;level=$(DEFAULT_COMPRESSION_LEVEL))
+
+Create an xz compression codec.
+"""
+function XzCompression(;level::Integer=DEFAULT_COMPRESSION_LEVEL)
     if !(0 ≤ level ≤ 9)
         throw(ArgumentError("compression level must be within 0..9"))
     end
@@ -16,6 +23,11 @@ end
 
 const XzCompressionStream{S} = TranscodingStream{XzCompression,S}
 
+"""
+    XzCompressionStream(stream::IO)
+
+Create an xz compression stream.
+"""
 function XzCompressionStream(stream::IO)
     return TranscodingStream(XzCompression(), stream)
 end
