@@ -40,6 +40,7 @@ function TranscodingStreams.initialize(codec::XzDecompression)
     if ret != LZMA_OK
         lzmaerror(codec.stream, ret)
     end
+    finalizer(codec.stream, free)
     return
 end
 
