@@ -4,6 +4,7 @@
 struct XzDecompression <: TranscodingStreams.Codec
     stream::LZMAStream
     memlimit::Integer
+    flags::UInt32
 end
 
 const DEFAULT_MEM_LIMIT = 128 * 2^20
@@ -17,7 +18,7 @@ function XzDecompression(;memlimit::Integer=DEFAULT_MEM_LIMIT)
     if memlimit ≤ 0
         throw(ArgumentError("memlimit must be positive"))
     end
-    return XzDecompression(LZMAStream(), memlimit)
+    return XzDecompression(LZMAStream(), memlimit, LZMA_CONCATENATED)
 end
 
 const XzDecompressionStream{S} = TranscodingStream{XzDecompression,S}
@@ -36,7 +37,7 @@ end
 # -------
 
 function TranscodingStreams.initialize(codec::XzDecompression)
-    ret = stream_decoder(codec.stream, codec.memlimit, 0#=flags=#)
+    ret = stream_decoder(codec.stream, codec.memlimit, codec.flags)
     if ret != LZMA_OK
         lzmaerror(codec.stream, ret)
     end
@@ -54,7 +55,12 @@ function TranscodingStreams.process(codec::XzDecompression, input::Memory, outpu
     stream.avail_in = input.size
     stream.next_out = output.ptr
     stream.avail_out = output.size
-    ret = code(stream, LZMA_RUN)
+    if codec.flags & LZMA_CONCATENATED != 0
+        action = stream.avail_in > 0 ? LZMA_RUN : LZMA_FINISH
+    else
+        action = LZMA_RUN
+    end
+    ret = code(stream, action)
     Δin = Int(input.size - stream.avail_in)
     Δout = Int(output.size - stream.avail_out)
     if ret == LZMA_OK
