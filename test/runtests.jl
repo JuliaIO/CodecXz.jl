@@ -7,8 +7,14 @@ import TranscodingStreams
     data = b"\xfd7zXZ\x00\x00\x04\xe6\xd6\xb4F\x02\x00!\x01\x16\x00\x00\x00t/\xe5\xa3\x01\x00\x02foo\x00\x00X\x15\xa9{,\xe6,\x98\x00\x01\x1b\x03\x0b/\xb9\x10\x1f\xb6\xf3}\x01\x00\x00\x00\x00\x04YZ"
     @test read(XzDecompressionStream(IOBuffer(data))) == b"foo"
     @test read(XzDecompressionStream(IOBuffer(vcat(data, data)))) == b"foofoo"
+    # corrupt data
+    data[[1,3,5]] = b"bug"
+    @test_throws ErrorException read(XzDecompressionStream(IOBuffer(data)))
 
     TranscodingStreams.test_roundtrip_read(XzCompressionStream, XzDecompressionStream)
     TranscodingStreams.test_roundtrip_write(XzCompressionStream, XzDecompressionStream)
     TranscodingStreams.test_roundtrip_transcode(XzCompression, XzDecompression)
+
+    @test_throws ArgumentError XzCompression(level=10)
+    @test_throws ArgumentError XzDecompression(memlimit=0)
 end
