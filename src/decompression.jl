@@ -7,29 +7,35 @@ struct XzDecompression <: TranscodingStreams.Codec
     flags::UInt32
 end
 
-const DEFAULT_MEM_LIMIT = 128 * 2^20
+const DEFAULT_MEM_LIMIT = typemax(UInt64)
 
 """
-    XzDecompression(;memlimit=$(DEFAULT_MEM_LIMIT))
+    XzDecompression(;memlimit=$(DEFAULT_MEM_LIMIT), flags=LZMA_CONCATENATED)
 
 Create an xz decompression codec.
+
+Arguments
+---------
+- `memlimit`: memory usage limit as bytes
+- `flags`: decoder flags
 """
-function XzDecompression(;memlimit::Integer=DEFAULT_MEM_LIMIT)
+function XzDecompression(;memlimit::Integer=DEFAULT_MEM_LIMIT, flags::UInt32=LZMA_CONCATENATED)
     if memlimit ≤ 0
         throw(ArgumentError("memlimit must be positive"))
     end
-    return XzDecompression(LZMAStream(), memlimit, LZMA_CONCATENATED)
+    # NOTE: flags are checked in liblzma
+    return XzDecompression(LZMAStream(), memlimit, flags)
 end
 
 const XzDecompressionStream{S} = TranscodingStream{XzDecompression,S}
 
 """
-    XzDecompressionStream(stream::IO)
+    XzDecompressionStream(stream::IO; kwargs...)
 
-Create an xz decompression stream.
+Create an xz decompression stream (see `XzDecompression` for `kwargs`).
 """
-function XzDecompressionStream(stream::IO)
-    return TranscodingStream(XzDecompression(), stream)
+function XzDecompressionStream(stream::IO; kwargs...)
+    return TranscodingStream(XzDecompression(;kwargs...), stream)
 end
 
 
