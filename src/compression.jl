@@ -29,7 +29,7 @@ function XzCompression(;level::Integer=DEFAULT_COMPRESSION_LEVEL, check::Cint=DE
     return XzCompression(LZMAStream(), level, check)
 end
 
-const XzCompressionStream{S} = TranscodingStream{XzCompression,S}
+const XzCompressionStream{S} = TranscodingStream{XzCompression,S} where S<:IO
 
 """
     XzCompressionStream(stream::IO; kwargs...)

@@ -27,7 +27,7 @@ function XzDecompression(;memlimit::Integer=DEFAULT_MEM_LIMIT, flags::UInt32=LZM
     return XzDecompression(LZMAStream(), memlimit, flags)
 end
 
-const XzDecompressionStream{S} = TranscodingStream{XzDecompression,S}
+const XzDecompressionStream{S} = TranscodingStream{XzDecompression,S} where S<:IO
 
 """
     XzDecompressionStream(stream::IO; kwargs...)

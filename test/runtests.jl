@@ -11,6 +11,9 @@ import TranscodingStreams
     data[[1,3,5]] = b"bug"
     @test_throws ErrorException read(XzDecompressionStream(IOBuffer(data)))
 
+    @test XzCompressionStream <: TranscodingStreams.TranscodingStream
+    @test XzDecompressionStream <: TranscodingStreams.TranscodingStream
+
     TranscodingStreams.test_roundtrip_read(XzCompressionStream, XzDecompressionStream)
     TranscodingStreams.test_roundtrip_write(XzCompressionStream, XzDecompressionStream)
     TranscodingStreams.test_roundtrip_lines(XzCompressionStream, XzDecompressionStream)
