@@ -13,6 +13,7 @@ import TranscodingStreams
 
     TranscodingStreams.test_roundtrip_read(XzCompressionStream, XzDecompressionStream)
     TranscodingStreams.test_roundtrip_write(XzCompressionStream, XzDecompressionStream)
+    TranscodingStreams.test_roundtrip_lines(XzCompressionStream, XzDecompressionStream)
     TranscodingStreams.test_roundtrip_transcode(XzCompression, XzDecompression)
 
     @test_throws ArgumentError XzCompression(level=10)
