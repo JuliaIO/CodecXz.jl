@@ -1,7 +1,7 @@
 # The liblzma Interfaces
 # ======================
 
-const liblzma = "liblzma"
+load("../deps/deps.jl")
 
 # Return code
 const LZMA_OK                = Cint(0)
