@@ -47,7 +47,6 @@ function TranscodingStreams.initialize(codec::XzDecompression)
     if ret != LZMA_OK
         lzmaerror(codec.stream, ret)
     end
-    finalizer(codec.stream, free)
     return
 end
 
@@ -55,7 +54,7 @@ function TranscodingStreams.finalize(codec::XzDecompression)
     free(codec.stream)
 end
 
-function TranscodingStreams.process(codec::XzDecompression, input::Memory, output::Memory)
+function TranscodingStreams.process(codec::XzDecompression, input::Memory, output::Memory, error::Error)
     stream = codec.stream
     stream.next_in = input.ptr
     stream.avail_in = input.size
@@ -74,6 +73,7 @@ function TranscodingStreams.process(codec::XzDecompression, input::Memory, outpu
     elseif ret == LZMA_STREAM_END
         return Δin, Δout, :end
     else
-        lzmaerror(stream, ret)
+        error[] = ErrorException(lzma_error_string(ret))
+        return Δin, Δout, :error
     end
 end

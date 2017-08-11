@@ -68,7 +68,11 @@ function LZMAStream()
 end
 
 function lzmaerror(stream::LZMAStream, code::Cint)
-    error("lzma error: code = $(code)")
+    error(lzma_error_string(code))
+end
+
+function lzma_error_string(code::Cint)
+    return "lzma error: code = $(code)"
 end
 
 function easy_encoder(stream::LZMAStream, preset::Integer, check::Integer)
