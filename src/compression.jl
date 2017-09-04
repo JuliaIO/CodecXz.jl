@@ -7,6 +7,10 @@ struct XzCompression <: TranscodingStreams.Codec
     check::Cint
 end
 
+function Base.show(io::IO, codec::XzCompression)
+    print(io, summary(codec), "(level=$(codec.preset), check=$(codec.check))")
+end
+
 const DEFAULT_COMPRESSION_LEVEL = 6
 const DEFAULT_CHECK = LZMA_CHECK_CRC64
 
