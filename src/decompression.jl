@@ -7,6 +7,10 @@ struct XzDecompression <: TranscodingStreams.Codec
     flags::UInt32
 end
 
+function Base.show(io::IO, codec::XzDecompression)
+    print(io, summary(codec), "(memlimit=$(codec.memlimit), flags=$(codec.flags))")
+end
+
 const DEFAULT_MEM_LIMIT = typemax(UInt64)
 
 """
