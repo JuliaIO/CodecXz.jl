@@ -58,6 +58,15 @@ function TranscodingStreams.finalize(codec::XzDecompression)
     free(codec.stream)
 end
 
+function TranscodingStreams.startproc(codec::XzDecompression, mode::Symbol, error::Error)
+    ret = stream_decoder(codec.stream, codec.memlimit, codec.flags)
+    if ret != LZMA_OK
+        error[] = ErrorException("xz error")
+        return :error
+    end
+    return :ok
+end
+
 function TranscodingStreams.process(codec::XzDecompression, input::Memory, output::Memory, error::Error)
     stream = codec.stream
     stream.next_in = input.ptr
