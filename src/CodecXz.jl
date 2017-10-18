@@ -3,10 +3,10 @@ __precompile__()
 module CodecXz
 
 export
-    XzCompression,
-    XzCompressionStream,
-    XzDecompression,
-    XzDecompressionStream
+    XzCompressor,
+    XzCompressorStream,
+    XzDecompressor,
+    XzDecompressorStream
 
 import TranscodingStreams:
     TranscodingStreams,
