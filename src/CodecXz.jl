@@ -20,4 +20,10 @@ include("liblzma.jl")
 include("compression.jl")
 include("decompression.jl")
 
+# Deprecations
+@deprecate XzCompression         XzCompressor
+@deprecate XzCompressionStream   XzCompressorStream
+@deprecate XzDecompression       XzDecompressor
+@deprecate XzDecompressionStream XzDecompressorStream
+
 end # module
