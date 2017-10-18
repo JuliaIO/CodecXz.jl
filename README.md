@@ -34,15 +34,15 @@ end
 close(stream)
 
 # Array API.
-compressed = transcode(XzCompressor(), text)
+compressed = transcode(XzCompressor, text)
 @assert sizeof(compressed) < sizeof(text)
-@assert transcode(XzDecompressor(), compressed) == Vector{UInt8}(text)
+@assert transcode(XzDecompressor, compressed) == Vector{UInt8}(text)
 ```
 
 This package exports following codecs and streams:
 
-| Codec             | Stream                  |
-| ----------------- | ----------------------- |
+| Codec            | Stream                 |
+| ---------------- | ---------------------- |
 | `XzCompressor`   | `XzCompressorStream`   |
 | `XzDecompressor` | `XzDecompressorStream` |
 

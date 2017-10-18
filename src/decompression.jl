@@ -1,5 +1,5 @@
 # Decompressor Codec
-# ===================
+# ==================
 
 struct XzDecompressor <: TranscodingStreams.Codec
     stream::LZMAStream
