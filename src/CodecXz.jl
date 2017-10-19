@@ -3,10 +3,10 @@ __precompile__()
 module CodecXz
 
 export
-    XzCompression,
-    XzCompressionStream,
-    XzDecompression,
-    XzDecompressionStream
+    XzCompressor,
+    XzCompressorStream,
+    XzDecompressor,
+    XzDecompressorStream
 
 import TranscodingStreams:
     TranscodingStreams,
@@ -19,5 +19,11 @@ import TranscodingStreams:
 include("liblzma.jl")
 include("compression.jl")
 include("decompression.jl")
+
+# Deprecations
+@deprecate XzCompression         XzCompressor
+@deprecate XzCompressionStream   XzCompressorStream
+@deprecate XzDecompression       XzDecompressor
+@deprecate XzDecompressionStream XzDecompressorStream
 
 end # module

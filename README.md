@@ -27,24 +27,24 @@ erat ex bibendum ipsum, sed varius ipsum ipsum vitae dui.
 """
 
 # Streaming API.
-stream = XzCompressionStream(IOBuffer(text))
-for line in eachline(XzDecompressionStream(stream))
+stream = XzCompressorStream(IOBuffer(text))
+for line in eachline(XzDecompressorStream(stream))
     println(line)
 end
 close(stream)
 
 # Array API.
-compressed = transcode(XzCompression(), text)
+compressed = transcode(XzCompressor, text)
 @assert sizeof(compressed) < sizeof(text)
-@assert transcode(XzDecompression(), compressed) == Vector{UInt8}(text)
+@assert transcode(XzDecompressor, compressed) == Vector{UInt8}(text)
 ```
 
 This package exports following codecs and streams:
 
-| Codec             | Stream                  |
-| ----------------- | ----------------------- |
-| `XzCompression`   | `XzCompressionStream`   |
-| `XzDecompression` | `XzDecompressionStream` |
+| Codec            | Stream                 |
+| ---------------- | ---------------------- |
+| `XzCompressor`   | `XzCompressorStream`   |
+| `XzDecompressor` | `XzDecompressorStream` |
 
 See docstrings and [TranscodingStreams.jl](https://github.com/bicycle1885/TranscodingStreams.jl) for details.
 
