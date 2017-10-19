@@ -41,7 +41,8 @@ const XzCompressorStream{S} = TranscodingStream{XzCompressor,S} where S<:IO
 Create an xz compression stream (see `XzCompressor` for `kwargs`).
 """
 function XzCompressorStream(stream::IO; kwargs...)
-    return TranscodingStream(XzCompressor(;kwargs...), stream)
+    x, y = splitkwargs(kwargs, (:level, :check))
+    return TranscodingStream(XzCompressor(;x...), stream; y...)
 end
 
 
