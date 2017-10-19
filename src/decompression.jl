@@ -39,7 +39,8 @@ const XzDecompressorStream{S} = TranscodingStream{XzDecompressor,S} where S<:IO
 Create an xz decompression stream (see `XzDecompressor` for `kwargs`).
 """
 function XzDecompressorStream(stream::IO; kwargs...)
-    return TranscodingStream(XzDecompressor(;kwargs...), stream)
+    x, y = splitkwargs(kwargs, (:memlimit, :flags))
+    return TranscodingStream(XzDecompressor(;x...), stream; y...)
 end
 
 
