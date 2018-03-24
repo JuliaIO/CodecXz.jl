@@ -8,6 +8,7 @@ export
     XzDecompressor,
     XzDecompressorStream
 
+using Compat: Cvoid
 import TranscodingStreams:
     TranscodingStreams,
     TranscodingStream,
