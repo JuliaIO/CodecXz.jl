@@ -46,11 +46,11 @@ mutable struct LZMAStream
     avail_out::Csize_t
     total_out::UInt64
 
-    allocator::Ptr{Void}
+    allocator::Ptr{Cvoid}
 
-    internal::Ptr{Void}
+    internal::Ptr{Cvoid}
 
-    reserved_ptr::NTuple{4,Ptr{Void}}
+    reserved_ptr::NTuple{4,Ptr{Cvoid}}
     reserved_uint::NTuple{2,UInt64}
     reserved_size::NTuple{2,Csize_t}
     reserved_enum::NTuple{2,Cint}
@@ -100,5 +100,5 @@ function code(stream::LZMAStream, action::Integer)
 end
 
 function free(stream::LZMAStream)
-    ccall((:lzma_end, liblzma), Void, (Ref{LZMAStream},), stream)
+    ccall((:lzma_end, liblzma), Cvoid, (Ref{LZMAStream},), stream)
 end
