@@ -4,6 +4,7 @@ if VERSION < v"0.7-"
 else
     using Test
 end
+using Compat
 import TranscodingStreams
 
 @testset "Xz Codec" begin
