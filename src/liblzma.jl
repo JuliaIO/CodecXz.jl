@@ -1,8 +1,6 @@
 # The liblzma Interfaces
 # ======================
 
-const liblzma = "liblzma"
-
 # Return code
 const LZMA_OK                = Cint(0)
 const LZMA_STREAM_END        = Cint(1)

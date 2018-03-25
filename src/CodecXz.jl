@@ -9,6 +9,7 @@ export
     XzDecompressorStream
 
 using Compat: Cvoid
+using Compat.Libdl
 import TranscodingStreams:
     TranscodingStreams,
     TranscodingStream,
@@ -16,6 +17,13 @@ import TranscodingStreams:
     Error,
     initialize,
     finalize
+
+const liblzmapath = joinpath(dirname(@__FILE__), "..", "deps", "deps.jl")
+if !isfile(liblzmapath)
+    error("CodecXz.jl is not installed properly, run Pkg.build(\"CodecXz\") and restart Julia.")
+end
+include(liblzmapath)
+check_deps()
 
 # TODO: This method will be added in the next version of TranscodingStreams.jl.
 function splitkwargs(kwargs, keys)
