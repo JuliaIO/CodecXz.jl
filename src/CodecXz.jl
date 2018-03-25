@@ -16,7 +16,8 @@ import TranscodingStreams:
     Memory,
     Error,
     initialize,
-    finalize
+    finalize,
+    splitkwargs
 
 const liblzmapath = joinpath(dirname(@__FILE__), "..", "deps", "deps.jl")
 if !isfile(liblzmapath)
@@ -24,16 +25,6 @@ if !isfile(liblzmapath)
 end
 include(liblzmapath)
 check_deps()
-
-# TODO: This method will be added in the next version of TranscodingStreams.jl.
-function splitkwargs(kwargs, keys)
-    hits = []
-    others = []
-    for kwarg in kwargs
-        push!(kwarg[1] ∈ keys ? hits : others, kwarg)
-    end
-    return hits, others
-end
 
 include("liblzma.jl")
 include("compression.jl")
