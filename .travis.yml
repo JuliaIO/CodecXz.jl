@@ -9,6 +9,8 @@ julia:
 matrix:
   allow_failures:
     - julia: nightly
+env:
+  - JULIA_PROJECT="@."
 notifications:
   email: false
 after_success:
