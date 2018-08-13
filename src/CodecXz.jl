@@ -1,5 +1,3 @@
-__precompile__()
-
 module CodecXz
 
 export
@@ -8,8 +6,6 @@ export
     XzDecompressor,
     XzDecompressorStream
 
-using Compat: Cvoid
-using Compat.Libdl
 import TranscodingStreams:
     TranscodingStreams,
     TranscodingStream,
@@ -18,6 +14,7 @@ import TranscodingStreams:
     initialize,
     finalize,
     splitkwargs
+using Libdl
 
 const liblzmapath = joinpath(dirname(@__FILE__), "..", "deps", "deps.jl")
 if !isfile(liblzmapath)
@@ -29,11 +26,5 @@ check_deps()
 include("liblzma.jl")
 include("compression.jl")
 include("decompression.jl")
-
-# Deprecations
-@deprecate XzCompression         XzCompressor
-@deprecate XzCompressionStream   XzCompressorStream
-@deprecate XzDecompression       XzDecompressor
-@deprecate XzDecompressionStream XzDecompressorStream
 
 end # module
