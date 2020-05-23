@@ -15,13 +15,7 @@ import TranscodingStreams:
     finalize,
     splitkwargs
 using Libdl
-
-const liblzmapath = joinpath(dirname(@__FILE__), "..", "deps", "deps.jl")
-if !isfile(liblzmapath)
-    error("CodecXz.jl is not installed properly, run Pkg.build(\"CodecXz\") and restart Julia.")
-end
-include(liblzmapath)
-check_deps()
+using XZ_jll
 
 include("liblzma.jl")
 include("compression.jl")
