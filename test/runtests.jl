@@ -1,4 +1,5 @@
 using CodecXz
+using Random
 using TranscodingStreams
 using Test
 
