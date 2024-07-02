@@ -2,7 +2,7 @@ name = "CodecXz"
 uuid = "ba30903b-d9e8-5048-a5ec-d1f5b0d4b47b"
 license = "MIT"
 authors = ["Kenta Sato <bicycle1885@gmail.com>"]
-version = "0.7.2"
+version = "0.7.3"
 
 [deps]
 Libdl = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
@@ -10,7 +10,7 @@ TranscodingStreams = "3bb67fe8-82b1-5028-8e26-92a6c54297fa"
 XZ_jll = "ffd25f8a-64ca-5728-b0f7-c24cf3aae800"
 
 [compat]
-TranscodingStreams = "0.9, 0.10"
+TranscodingStreams = "0.9, 0.10, 0.11"
 julia = "1.3"
 
 [extras]
