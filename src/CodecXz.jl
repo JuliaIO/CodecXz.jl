@@ -14,7 +14,6 @@ import TranscodingStreams:
     initialize,
     finalize,
     splitkwargs
-using Libdl
 using XZ_jll
 
 include("liblzma.jl")
