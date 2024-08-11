@@ -1,6 +1,6 @@
 using CodecXz
-using Random
-using TranscodingStreams
+using TranscodingStreams: TranscodingStreams
+using TestsForCodecPackages
 using Test
 
 @testset "Xz Codec" begin
@@ -27,13 +27,11 @@ using Test
     @test XzCompressorStream <: TranscodingStreams.TranscodingStream
     @test XzDecompressorStream <: TranscodingStreams.TranscodingStream
 
-    TranscodingStreams.test_roundtrip_read(XzCompressorStream, XzDecompressorStream)
-    TranscodingStreams.test_roundtrip_write(XzCompressorStream, XzDecompressorStream)
-    TranscodingStreams.test_roundtrip_lines(XzCompressorStream, XzDecompressorStream)
-    if isdefined(TranscodingStreams, :test_roundtrip_seekstart)
-        TranscodingStreams.test_roundtrip_seekstart(XzCompressorStream, XzDecompressorStream)
-    end
-    TranscodingStreams.test_roundtrip_transcode(XzCompressor, XzDecompressor)
+    test_roundtrip_read(XzCompressorStream, XzDecompressorStream)
+    test_roundtrip_write(XzCompressorStream, XzDecompressorStream)
+    test_roundtrip_lines(XzCompressorStream, XzDecompressorStream)
+    test_roundtrip_seekstart(XzCompressorStream, XzDecompressorStream)
+    test_roundtrip_transcode(XzCompressor, XzDecompressor)
 
     @test_throws ArgumentError XzCompressor(level=10)
     @test_throws ArgumentError XzDecompressor(memlimit=0)
