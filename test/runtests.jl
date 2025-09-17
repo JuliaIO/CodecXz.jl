@@ -6,7 +6,7 @@ using Test
 @testset "Xz Codec" begin
     codec = XzCompressor()
     @test codec isa XzCompressor
-    @test occursin(r"^(CodecXz\.)?XzCompressor\(level=\d, check=\d+\)$", sprint(show, codec))
+    @test occursin(r"^(CodecXz\.)?XzCompressor\(level=\d, check=\d+, threads=\d+\)$", sprint(show, codec))
     @test CodecXz.initialize(codec) === nothing
     @test CodecXz.finalize(codec) === nothing
 
@@ -35,4 +35,32 @@ using Test
 
     @test_throws ArgumentError XzCompressor(level=10)
     @test_throws ArgumentError XzDecompressor(memlimit=0)
+end
+
+@testset "Encoder options" begin
+    Sys.WORD_SIZE == 64 && @test sizeof(CodecXz.LZMAMt) == 128  # sizeof(lzma_mt)
+    memusage(codec) = CodecXz.stream_encoder_mt_memusage(codec.options)
+    @test XzCompressor().options.threads == 1
+    @testset "automatic threads at level $level" for level in (0, 6, 9)
+        codec = XzCompressor(; level, threads = 0)
+        @test 1 ≤ codec.options.threads ≤ CodecXz.threadcount(0)
+        @test codec.options.threads == 1 || memusage(codec) ≤ Sys.total_memory() ÷ 4
+    end
+    @test XzCompressor(threads = 3).options.threads == 3
+    data = rand(UInt8, 300_000)
+    @testset "threads=$threads, blocksize=$blocksize" for threads in (1, 4), blocksize in (0, 50_000)
+        compressed = transcode(XzCompressor(; threads, blocksize), data)
+        @test transcode(XzDecompressor(), compressed) == data
+    end
+    @testset "a single Block is written as input arrives" begin
+        sink = IOBuffer()
+        stream = XzCompressorStream(sink)
+        write(stream, rand(UInt8, 4 * 2^20))
+        @test position(sink) > 2^20
+        close(stream)
+    end
+    @test_throws ArgumentError XzCompressor(threads = -1)
+    @test_throws ArgumentError XzCompressor(threads = CodecXz.LZMA_THREADS_MAX + 1)
+    @test_throws ArgumentError XzCompressor(blocksize = -1)
+    @test_throws ArgumentError XzCompressor(blocksize = CodecXz.LZMA_BLOCK_SIZE_MAX + 1)
 end
