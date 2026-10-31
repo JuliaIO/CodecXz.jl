@@ -49,22 +49,31 @@ end
         @test codec.options.threads == 1 || memusage(codec) ≤ Sys.total_memory() ÷ 4
     end
     @test XzCompressor(threads = 3).options.threads == 3
+    @test XzCompressor().options.block_size == 24 * 2^20
+    @test XzCompressor(level = 0).options.block_size == 2^20
     data = rand(UInt8, 300_000)
-    @testset "threads=$threads, blocksize=$blocksize" for threads in (1, 4), blocksize in (0, 50_000)
+    nblocks(compressed) = length(XzSeekableStream(IOBuffer(compressed)).codec.index.blocks)
+    @testset "threads=$threads, blocksize=$blocksize" for threads in (1, 4), blocksize in (nothing, 50_000)
         compressed = transcode(XzCompressor(; threads, blocksize), data)
         @test transcode(XzDecompressor(), compressed) == data
-        nblocks = length(XzSeekableStream(IOBuffer(compressed)).codec.index.blocks)
-        @test nblocks == if iszero(blocksize) 1 else cld(length(data), blocksize) end
+        @test nblocks(compressed) == if isnothing(blocksize) 1 else cld(length(data), blocksize) end
     end
-    @testset "a single Block is written as input arrives" begin
+    @test nblocks(transcode(XzCompressor(blocksize = 0), data)) == 1
+    @testset "single-threaded output is written as input arrives" begin
         sink = IOBuffer()
         stream = XzCompressorStream(sink)
         write(stream, rand(UInt8, 4 * 2^20))
         @test position(sink) > 2^20
         close(stream)
     end
+    @testset "input ending on a Block boundary" begin
+        compressed = transcode(XzCompressor(blocksize = 50_000), data[1:100_000])
+        @test transcode(XzDecompressor(), compressed) == data[1:100_000]
+        @test nblocks(compressed) == 2
+    end
     @test_throws ArgumentError XzCompressor(threads = -1)
     @test_throws ArgumentError XzCompressor(threads = CodecXz.LZMA_THREADS_MAX + 1)
     @test_throws ArgumentError XzCompressor(blocksize = -1)
     @test_throws ArgumentError XzCompressor(blocksize = CodecXz.LZMA_BLOCK_SIZE_MAX + 1)
+    @test_throws ArgumentError XzCompressor(blocksize = 0, threads = 4)
 end

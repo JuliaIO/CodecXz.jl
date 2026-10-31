@@ -61,6 +61,7 @@ end
     layouts = [
         "multi-block" => (multiblock, SAMPLE),
         "single block, sizes unknown" => (xz_singleblock(SAMPLE), SAMPLE),
+        "multi-block, sizes unknown" => (xz(SAMPLE; blocksize = 16 * 1024), SAMPLE),
         "multi-stream with padding and an empty stream" => (
             vcat(xz(SAMPLE[1:50_000]; blocksize = 8192), zeros(UInt8, 8),
                  xz(UInt8[]), xz(SAMPLE[50_001:end]; blocksize = 20_000)),
