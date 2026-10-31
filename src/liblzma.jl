@@ -14,6 +14,7 @@ const LZMA_OPTIONS_ERROR     = Cint(8)
 const LZMA_DATA_ERROR        = Cint(9)
 const LZMA_BUF_ERROR         = Cint(10)
 const LZMA_PROG_ERROR        = Cint(11)
+const LZMA_SEEK_NEEDED       = Cint(12)
 
 # Action code
 const LZMA_RUN          = Cint(0)
@@ -52,7 +53,8 @@ mutable struct LZMAStream
     internal::Ptr{Cvoid}
 
     reserved_ptr::NTuple{4,Ptr{Cvoid}}
-    reserved_uint::NTuple{2,UInt64}
+    seek_pos::UInt64  # set by decoders returning LZMA_SEEK_NEEDED
+    reserved_int2::UInt64
     reserved_size::NTuple{2,Csize_t}
     reserved_enum::NTuple{2,Cint}
 end
@@ -64,7 +66,7 @@ function LZMAStream()
         C_NULL,
         C_NULL,
         (C_NULL, C_NULL, C_NULL, C_NULL),
-        (0, 0), (0, 0),
+        0, 0, (0, 0),
         (0, 0))
 end
 
@@ -147,3 +149,74 @@ function free(stream::LZMAStream)
     ccall((:lzma_end, liblzma), Cvoid, (Ref{LZMAStream},), stream)
 end
 
+# Index and seekable decoding
+# ----------------------------
+
+const LZMA_STREAM_HEADER_SIZE = 12
+const LZMA_INDEX_ITER_BLOCK = Cint(2)
+
+struct LZMAIndexIterStream
+    flags::Ptr{Cvoid}  # const lzma_stream_flags *
+    reserved_ptr::NTuple{3,Ptr{Cvoid}}
+    number::UInt64
+    block_count::UInt64
+    compressed_offset::UInt64
+    uncompressed_offset::UInt64
+    compressed_size::UInt64
+    uncompressed_size::UInt64
+    padding::UInt64
+    reserved_vli::NTuple{4,UInt64}
+end
+
+struct LZMAIndexIterBlock
+    number_in_file::UInt64
+    compressed_file_offset::UInt64
+    uncompressed_file_offset::UInt64
+    number_in_stream::UInt64
+    compressed_stream_offset::UInt64
+    uncompressed_stream_offset::UInt64
+    uncompressed_size::UInt64
+    unpadded_size::UInt64
+    total_size::UInt64
+    reserved_vli::NTuple{4,UInt64}
+    reserved_ptr::NTuple{4,Ptr{Cvoid}}
+end
+
+struct LZMAIndexIter
+    stream::LZMAIndexIterStream
+    block::LZMAIndexIterBlock
+    internal::NTuple{6,UInt64}
+end
+
+function file_info_decoder(stream::LZMAStream, index::Ref{Ptr{Cvoid}}, memlimit::Integer, file_size::Integer)
+    return ccall(
+        (:lzma_file_info_decoder, liblzma),
+        Cint,
+        (Ref{LZMAStream}, Ref{Ptr{Cvoid}}, UInt64, UInt64),
+        stream, index, memlimit, file_size)
+end
+
+function index_end(index::Ptr{Cvoid})
+    ccall((:lzma_index_end, liblzma), Cvoid, (Ptr{Cvoid}, Ptr{Cvoid}), index, C_NULL)
+end
+
+function index_iter_init(iter::Ref{LZMAIndexIter}, index::Ptr{Cvoid})
+    ccall((:lzma_index_iter_init, liblzma), Cvoid, (Ref{LZMAIndexIter}, Ptr{Cvoid}), iter, index)
+end
+
+# Returns true once the iterator is exhausted.
+function index_iter_next(iter::Ref{LZMAIndexIter}, mode::Cint)
+    return ccall((:lzma_index_iter_next, liblzma), Bool, (Ref{LZMAIndexIter}, Cint), iter, mode)
+end
+
+function stream_header_encode(flags::Ptr{Cvoid}, out::Ptr{UInt8})
+    return ccall((:lzma_stream_header_encode, liblzma), Cint, (Ptr{Cvoid}, Ptr{UInt8}), flags, out)
+end
+
+function stream_decoder_mt(stream::LZMAStream, options::LZMAMt)
+    return ccall(
+        (:lzma_stream_decoder_mt, liblzma),
+        Cint,
+        (Ref{LZMAStream}, Ref{LZMAMt}),
+        stream, options)
+end

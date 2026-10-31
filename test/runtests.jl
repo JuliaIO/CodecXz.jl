@@ -3,6 +3,8 @@ using TranscodingStreams: TranscodingStreams
 using TestsForCodecPackages
 using Test
 
+include("seekable.jl")
+
 @testset "Xz Codec" begin
     codec = XzCompressor()
     @test codec isa XzCompressor
@@ -51,6 +53,8 @@ end
     @testset "threads=$threads, blocksize=$blocksize" for threads in (1, 4), blocksize in (0, 50_000)
         compressed = transcode(XzCompressor(; threads, blocksize), data)
         @test transcode(XzDecompressor(), compressed) == data
+        nblocks = length(XzSeekableStream(IOBuffer(compressed)).codec.index.blocks)
+        @test nblocks == if iszero(blocksize) 1 else cld(length(data), blocksize) end
     end
     @testset "a single Block is written as input arrives" begin
         sink = IOBuffer()
