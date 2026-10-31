@@ -41,5 +41,20 @@ This package exports following codecs and streams:
 | ---------------- | ---------------------- |
 | `XzCompressor`   | `XzCompressorStream`   |
 | `XzDecompressor` | `XzDecompressorStream` |
+|                  | `XzSeekableStream`     |
+
+## Random access
+
+`XzSeekableStream` decompresses a seekable `.xz` source with random access:
+`seek`, `skip`, and `position` work in uncompressed offsets, and a read decodes
+from the start of the Block holding its first byte. Files written with smaller
+Blocks seek faster, and multi-Block files decode on several threads.
+
+```julia
+compressed = transcode(XzCompressor(threads=0, blocksize=1_000_000), data)
+stream = XzSeekableStream(IOBuffer(compressed))
+seek(stream, 5_000_000)
+read(stream, 100)
+```
 
 See docstrings and [TranscodingStreams.jl](https://github.com/bicycle1885/TranscodingStreams.jl) for details.

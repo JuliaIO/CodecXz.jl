@@ -4,7 +4,9 @@ export
     XzCompressor,
     XzCompressorStream,
     XzDecompressor,
-    XzDecompressorStream
+    XzDecompressorStream,
+    XzDecodingError,
+    XzSeekableStream
 
 import TranscodingStreams:
     TranscodingStreams,
@@ -19,5 +21,6 @@ using XZ_jll
 include("liblzma.jl")
 include("compression.jl")
 include("decompression.jl")
+include("seekable.jl")
 
 end # module
